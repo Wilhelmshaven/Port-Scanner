@@ -554,10 +554,10 @@ UINT Send_ARP_Packet(LPVOID lpParameter)
 
 	ARPFrame.ah.hardware_type = htons(ARP_HARDWARE);   //硬件地址
 	ARPFrame.ah.protocol_type = htons(ETH_IP);         //ARP包协议类型
-	ARPFrame.ah.source_ip_add = inet_addr(myDevice.ip);         //请求方的IP地址为自身的IP地址	
+	inet_pton(AF_INET, myDevice.ip, &ARPFrame.ah.source_ip_add);//请求方的IP地址为自身的IP地址	        
 	memcpy(ARPFrame.ah.source_mac_add, myDevice.mac, 6);
 	ARPFrame.ah.operation_field = htons(ARP_REQUEST);  //ARP请求包
-	ARPFrame.ah.dest_ip_add = inet_addr(sp.dest_ip);   //目的IP
+	inet_pton(AF_INET, sp.dest_ip, &ARPFrame.ah.dest_ip_add);//目的IP
 
 	//把做好的数据包装入缓存
 	memset(sendbuf, 0, sizeof(sendbuf));
@@ -678,8 +678,9 @@ UINT Send_TCP_SYN_Packet(LPVOID lpParameter)
 		TCPFrame.ih.TTL = 58;                                       //TTL
 		TCPFrame.ih.protocol = TCP;                                 //协议名设置为TCP
 		TCPFrame.ih.checksum = 0x0000;                              //校验和置零，填充完头部后计算之
-		TCPFrame.ih.source_add = inet_addr(myDevice.ip);            //源IP地址为自己的IP
-		TCPFrame.ih.dest_add = inet_addr(xip);                      //目的IP地址，由用户给出
+		inet_pton(AF_INET, myDevice.ip, &TCPFrame.ih.source_add);   //源IP地址为自己的IP        
+		inet_pton(AF_INET, xip, &TCPFrame.ih.dest_add);             //目的IP地址，由用户给出
+                 
 		//IP头部校验和
 		char *cksbuf = new char[20];
 		memcpy(cksbuf, &TCPFrame.ih, 20);
@@ -697,8 +698,8 @@ UINT Send_TCP_SYN_Packet(LPVOID lpParameter)
 		TCPFrame.th.URG = 0x0000;                                    //URGent Number
 		//TCP伪头部填充
 		Psedo_TCP_head pth;
-		pth.source_addr = inet_addr(myDevice.ip);                    //源IP
-		pth.dest_addr = inet_addr(xip);                              //目的IP
+		inet_pton(AF_INET, myDevice.ip, &pth.source_addr);           //源IP    
+		inet_pton(AF_INET, xip, &pth.dest_addr);                     //目的IP                             
 		pth.protocol = TCP;                                          //TCP协议
 		pth.seg_len = htons(20);                                     //长度20（6bit）
 
@@ -781,8 +782,10 @@ UINT Send_TCP_RST_Packet(LPVOID lpParameter)
 		TCPFrame.ih.TTL = 58;                                       //TTL
 		TCPFrame.ih.protocol = TCP;                                 //协议名设置为TCP
 		TCPFrame.ih.checksum = 0x0000;                              //校验和置零，填充完头部后计算之
-		TCPFrame.ih.source_add = inet_addr(myDevice.ip);            //源IP地址为自己的IP
-		TCPFrame.ih.dest_add = inet_addr(xip);                      //目的IP地址，由用户给出
+		inet_pton(AF_INET, myDevice.ip, &TCPFrame.ih.source_add);   //源IP地址为自己的IP
+    
+		inet_pton(AF_INET, xip, &TCPFrame.ih.dest_add);             //目的IP地址，由用户给出              
+
 		//IP头部校验和
 		char *cksbuf = new char[20];
 		memcpy(cksbuf, &TCPFrame.ih, 20);
@@ -800,10 +803,10 @@ UINT Send_TCP_RST_Packet(LPVOID lpParameter)
 		TCPFrame.th.URG = 0x0000;                                    //URGent Number
 		//TCP伪头部填充
 		Psedo_TCP_head pth;
-		pth.source_addr = inet_addr(myDevice.ip);             //源IP
-		pth.dest_addr = inet_addr(xip);                       //目的IP
-		pth.protocol = TCP;                                   //TCP协议
-		pth.seg_len = htons(20);                              //长度20（6bit）
+		inet_pton(AF_INET, myDevice.ip, &pth.source_addr);           //源IP    
+		inet_pton(AF_INET, xip, &pth.dest_addr);                     //目的IP   
+		pth.protocol = TCP;                                          //TCP协议
+		pth.seg_len = htons(20);                                     //长度20（6bit）
 
 		//计算TCP首部的校验和：伪首部在前，与首部一起参与计算，随后丢弃伪首部
 		char *buf = new char[32];

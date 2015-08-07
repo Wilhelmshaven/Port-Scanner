@@ -20,21 +20,17 @@
 #include <memory.h>
 #include <tchar.h>
 
-
 // TODO:  在此处引用程序需要的其他头文件
 #include <stdio.h>
 #include <iostream>
 #include <WinSock2.h>
 #include <cstring>
 #include "pcap.h"
-#pragma comment(lib,"ws2_32.lib")
-#pragma comment(lib,"wpcap.lib")
 #include <commctrl.h>  //Listview
 #include <math.h>
 
 //Windows API
 #include <Iphlpapi.h>
-#pragma comment(lib,"Iphlpapi.lib") //需要添加Iphlpapi.lib库
 
 #pragma pack(1)  //按一个字节内存对齐
 
