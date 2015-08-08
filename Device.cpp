@@ -8,12 +8,14 @@ Device::Device()
 	ip = new char[16];
 	netmask = new char[16];
 	mac = new char[6];
-	macStr = new char[17];
+	macStr = new char[18];
 	gateway_ip = new char[16];
 	errbuf = new char[PCAP_ERRBUF_SIZE];
 	gatewayMAC = new char[6];
-	gatewayMACStr = new char[17];
+	gatewayMACStr = new char[18];
 
+	/* 获取本机设备列表*/
+	if (pcap_findalldevs_ex(PCAP_SRC_IF_STRING, NULL, &alldevs, errbuf) == -1)exit(1);
 }
 
 Device::~Device()
@@ -23,36 +25,14 @@ Device::~Device()
 }
 
 //主线程
-void Device::DeviceGetReady()
+void Device::DeviceGetReady(int option)
 {
-	/* 获取本机设备列表*/
-	if (pcap_findalldevs_ex(PCAP_SRC_IF_STRING, NULL, &alldevs, errbuf) == -1)exit(1);
-
 	//遍历网卡
 	pcap_if_t *d;
-	for (d = alldevs; d; d = d->next)
-	{
-		//首先对判断网卡需要的参数清零
-		ZeroMemory(gateway_ip, 16);
-		ZeroMemory(macStr, 17);
-
-		OpenDevice(d);                                  //打开网卡
-		GetInfo(d);   //获得该网卡的IP、子网掩码、MAC地址和网关IP
-
-		BOOL chk = TRUE;
-		char *invalidGate = new char[];
-		invalidGate = "0.0.0.0";                       //该网关不合法
-		if (this->gateway_ip == NULL)chk = FALSE;
-		if (strcmp(this->gateway_ip, invalidGate) == 0)chk = FALSE;
-
-		if (!chk)
-		{
-			continue;
-		}
-		else break;//已找到合适的网卡
-
-	}
-
+	d = alldevs;
+	for (int i = 0; i < option; i++)d = d->next;// 跳转到指定网卡
+	OpenDevice(d);                                  //打开网卡
+	GetInfo(d);   //获得该网卡的IP、子网掩码、MAC地址和网关IP
 }
 
 //打开设备
@@ -127,7 +107,7 @@ void Device::GetInfo(pcap_if_t *d)
 					//获取网关IP
 					gateway_ip = pIpAdapterInfo->GatewayList.IpAddress.String;
 					//获取自己的MAC地址
-					sprintf(macStr, "%02X-%02X-%02X-%02X-%02X-%02X",
+					sprintf_s(macStr, 18,"%02X-%02X-%02X-%02X-%02X-%02X",
 						pIpAdapterInfo->Address[0],
 						pIpAdapterInfo->Address[1],
 						pIpAdapterInfo->Address[2],

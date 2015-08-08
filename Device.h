@@ -21,7 +21,7 @@ private:
 	void GetInfo(pcap_if_t *d);  //获得该网卡的IP、子网掩码、MAC地址和网关IP
 
 public:
-	void DeviceGetReady(); //功能入口
+	void DeviceGetReady(int option); //功能入口
 
 	//将数字类型的IP地址转换成字符串类型的
 	char *iptos(DWORD in)
@@ -29,7 +29,7 @@ public:
 		char *ipstr = new char[16];
 		BYTE *p;
 		p = (BYTE *)&in;//这部分通过指针类型的改变实现了转换过程
-		sprintf(ipstr, "%d.%d.%d.%d", p[0], p[1], p[2], p[3]);
+		sprintf_s(ipstr, 16, "%d.%d.%d.%d", p[0], p[1], p[2], p[3]);
 		return ipstr;
 	}
 
@@ -58,7 +58,7 @@ public:
 		current_port = 0;
 		dest_ip = new char[16];
 		dest_MAC = new char[6];
-		dest_MACStr = new char[17];
+		dest_MACStr = new char[18];
 		handle = NULL;
 		status = NULL;
 	}
